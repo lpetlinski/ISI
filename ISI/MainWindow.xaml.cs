@@ -1,8 +1,11 @@
-﻿using System;
+﻿using ISI.Controller;
+using ISI.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -20,9 +23,28 @@ namespace ISI
     /// </summary>
     public partial class MainWindow : Window
     {
+        private Timer timer;
+
+        private MainController mainController;
+
         public MainWindow()
         {
             InitializeComponent();
+            mainController = new MainController(this.ViewPort);
+
+            this.timer = new Timer();
+            timer.Interval = 50;
+            timer.AutoReset = true;
+            timer.Elapsed += (obj, data) =>
+            {
+                mainController.Update();
+            };
+            timer.Start();
+        }
+
+        private void Window_Closing_1(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            this.timer.Stop();
         }
     }
 }
