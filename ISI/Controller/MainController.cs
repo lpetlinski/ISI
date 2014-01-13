@@ -46,17 +46,17 @@ namespace ISI.Controller
             }
             
             // Uncomment this to show nodes.
-            //var color = new SolidColorBrush(Colors.Green);
-            //foreach (var node in this.CityMap.CityGraph.Nodes)
-            //{
-            //    var rect = new Rectangle();
-            //    rect.Width = Node.NodeSize;
-            //    rect.Height = Node.NodeSize;
-            //    Canvas.SetLeft(rect, node.Position.X);
-            //    Canvas.SetTop(rect, node.Position.Y);
-            //    rect.Fill = color;
-            //    Viewport.Children.Add(rect);
-            //}
+            var color = new SolidColorBrush(Colors.Green);
+            foreach (var node in this.CityMap.CityGraph.Nodes)
+            {
+                var rect = new Rectangle();
+                rect.Width = Node.NodeSize;
+                rect.Height = Node.NodeSize;
+                Canvas.SetLeft(rect, node.Position.X);
+                Canvas.SetTop(rect, node.Position.Y);
+                rect.Fill = color;
+                Viewport.Children.Add(rect);
+            }
 
             this.carsController = new CarsController(this.CityMap, this.Viewport);
             

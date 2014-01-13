@@ -78,6 +78,7 @@ namespace ISI.Controller
                     vector = car.ActualRoad.GetDirectionFromNode(car.LastNode);
                 }
                 car.MoveBy(vector.X * car.Speed, vector.Y * car.Speed);
+                // TODO repair car position to not override buildings.
 
                 if (this.CheckCarCollision(car))
                 {
@@ -224,7 +225,7 @@ namespace ISI.Controller
             if (RectangleCollisions.CheckSquaresIncluding(anotherNode.Position, Node.NodeSize, car.Position, Car.CarLength))
             {
                 var nextVector = car.NextRoad.GetDirectionFromNode(anotherNode);
-                if (actualVector.X * nextVector.Y - actualVector.Y * nextVector.X < 0)
+                if (actualVector.X * nextVector.Y - actualVector.Y * nextVector.X > 0)
                 {
                     return true;
                 }
@@ -245,7 +246,7 @@ namespace ISI.Controller
             if (RectangleCollisions.CheckSquaresIncluding(position, Node.NodeSize, car.Position, Car.CarLength))
             {
                 var nextVector = car.NextRoad.GetDirectionFromNode(anotherNode);
-                if (actualVector.X * nextVector.Y - actualVector.Y * nextVector.X > 0)
+                if (actualVector.X * nextVector.Y - actualVector.Y * nextVector.X < 0)
                 {
                     return true;
                 }

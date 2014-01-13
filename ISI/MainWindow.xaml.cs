@@ -27,6 +27,8 @@ namespace ISI
 
         private MainController mainController;
 
+        private bool stopped;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -37,7 +39,10 @@ namespace ISI
             timer.AutoReset = true;
             timer.Elapsed += (obj, data) =>
             {
-                mainController.Update();
+                if (!stopped)
+                {
+                    mainController.Update();
+                }
             };
             timer.Start();
         }
@@ -45,6 +50,14 @@ namespace ISI
         private void Window_Closing_1(object sender, System.ComponentModel.CancelEventArgs e)
         {
             this.timer.Stop();
+        }
+
+        private void Window_KeyUp_1(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Space)
+            {
+                this.stopped = !stopped;
+            }
         }
     }
 }
