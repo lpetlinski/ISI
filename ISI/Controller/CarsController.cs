@@ -78,13 +78,14 @@ namespace ISI.Controller
                     vector = car.ActualRoad.GetDirectionFromNode(car.LastNode);
                 }
                 car.MoveBy(vector.X * car.Speed, vector.Y * car.Speed);
-                // TODO repair car position to not override buildings.
 
                 if (this.CheckCarCollision(car))
                 {
                     car.MoveBy(-vector.X * car.Speed, -vector.Y * car.Speed);
                     car.Speed = 0;
                 }
+
+                this.RepairCarPosition(car);
             }
 
             if (!this.Viewport.Dispatcher.HasShutdownStarted && this.Cars.Count < CarsCount)
@@ -263,6 +264,20 @@ namespace ISI.Controller
         private List<Node> GetEmptyStartPoints(List<Node> destinationNodes)
         {
             return destinationNodes.Where(n => !this.Cars.Any(c => RectangleCollisions.CheckSquaresCollision(n.Position, Node.NodeSize, c.Position, Car.CarLength))).ToList();
+        }
+
+        private void RepairCarPosition(Car car)
+        {
+            foreach (var building in CityMap.Buildings)
+            {
+                var distance = RectangleCollisions.GetSquareWithBuildingCollision(car.Position, Car.CarLength, building);
+                if (distance > 0)
+                {
+                    var vector = car.ActualRoad.GetDirectionFromNode(car.LastNode);
+                    vector.RotateLeft();
+                    car.MoveBy(vector.X * distance, vector.Y * distance);
+                }
+            }
         }
     }
 }

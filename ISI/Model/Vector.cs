@@ -31,5 +31,12 @@ namespace ISI.Model
         {
             return Math.Sqrt(Math.Pow(this.X, 2) + Math.Pow(this.Y, 2));
         }
+
+        public void RotateLeft()
+        {
+            var tmp = this.X;
+            this.X = this.Y;
+            this.Y = -tmp;
+        }
     }
 }

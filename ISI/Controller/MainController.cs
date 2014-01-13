@@ -42,7 +42,7 @@ namespace ISI.Controller
             this.CityMap = new CityMap();
             foreach (var building in this.CityMap.Buildings)
             {
-                Viewport.Children.Add(building);
+                Viewport.Children.Add(building.Rect);
             }
             
             // Uncomment this to show nodes.

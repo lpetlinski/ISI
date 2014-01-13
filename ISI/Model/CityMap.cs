@@ -27,7 +27,7 @@ namespace ISI.Model
         /// <summary>
         /// List of buildings (generally they are only gray rectangles)
         /// </summary>
-        public IList<Rectangle> Buildings
+        public IList<Building> Buildings
         {
             get;
             private set;
@@ -48,7 +48,7 @@ namespace ISI.Model
         public CityMap()
         {
             this.Lights = new List<Light>();
-            this.Buildings = new List<Rectangle>();
+            this.Buildings = new List<Building>();
             CreateLights();
             CreateBuildings();
             this.CityGraph = new CityGraph();
@@ -69,12 +69,21 @@ namespace ISI.Model
             var color = new SolidColorBrush(Colors.Gray);
             foreach (var pattern in CityMapPattern.BuildingsPattern)
             {
-                var building = new Rectangle();
-                building.Height = pattern.Height;
-                building.Width = pattern.Width;
-                building.Fill = color;
-                Canvas.SetLeft(building, pattern.Position.X);
-                Canvas.SetTop(building, pattern.Position.Y);
+                var buildingRect = new Rectangle();
+                buildingRect.Height = pattern.Height;
+                buildingRect.Width = pattern.Width;
+                buildingRect.Fill = color;
+                Canvas.SetLeft(buildingRect, pattern.Position.X);
+                Canvas.SetTop(buildingRect, pattern.Position.Y);
+
+                var building = new Building
+                {
+                    Height = pattern.Height,
+                    Width = pattern.Width,
+                    Position = pattern.Position,
+                    Rect = buildingRect
+                };
+
                 this.Buildings.Add(building);
             }
         }
