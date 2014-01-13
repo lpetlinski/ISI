@@ -58,6 +58,11 @@ namespace ISI.Controller
                 Viewport.Children.Add(rect);
             }
 
+            foreach (var light in this.CityMap.Lights)
+            {
+                Viewport.Children.Add(light.Rect);
+            }
+
             this.carsController = new CarsController(this.CityMap, this.Viewport);
             
         }

@@ -15,6 +15,8 @@ namespace ISI.Model
     /// </summary>
     public class CityMap
     {
+        private const double LightFromBorder = 5;
+
         /// <summary>
         /// List of lights.
         /// </summary>
@@ -49,9 +51,9 @@ namespace ISI.Model
         {
             this.Lights = new List<Light>();
             this.Buildings = new List<Building>();
+            this.CityGraph = new CityGraph();
             CreateLights();
             CreateBuildings();
-            this.CityGraph = new CityGraph();
         }
 
         /// <summary>
@@ -59,6 +61,56 @@ namespace ISI.Model
         /// </summary>
         private void CreateLights()
         {
+            foreach (var node in this.CityGraph.Nodes)
+            {
+                if(node.Edges.Count > 1){
+                    foreach (var edge in node.Edges)
+                    {
+                        var rect = new Rectangle();
+                        var light = new Light
+                        {
+                            NodeWithLight = node,
+                            EdgeWithLight = edge,
+                            Rect = rect
+                        };
+
+                        rect.Width = Light.LightSize;
+                        rect.Height = Light.LightSize;
+
+                        var vector = edge.GetDirectionFromNode(node);
+
+                        if (vector.X > 0.9)
+                        {
+                            // right
+                            Canvas.SetLeft(rect, node.Position.X + Node.NodeSize + LightFromBorder);
+                            Canvas.SetTop(rect, node.Position.Y - LightFromBorder - Light.LightSize);
+                            light.State = LightState.Green;
+                        }
+                        else if (vector.X < -0.9)
+                        {
+                            // left
+                            Canvas.SetLeft(rect, node.Position.X - LightFromBorder - Light.LightSize);
+                            Canvas.SetTop(rect, node.Position.Y + Node.NodeSize + LightFromBorder);
+                            light.State = LightState.Green;
+                        }
+                        else if (vector.Y > 0.9)
+                        {
+                            // bottom
+                            Canvas.SetLeft(rect, node.Position.X + Node.NodeSize + LightFromBorder);
+                            Canvas.SetTop(rect, node.Position.Y + Node.NodeSize + LightFromBorder);
+                            light.State = LightState.Red;
+                        }
+                        else
+                        {
+                            // top
+                            Canvas.SetLeft(rect, node.Position.X - LightFromBorder - Light.LightSize);
+                            Canvas.SetTop(rect, node.Position.Y - LightFromBorder - Light.LightSize);
+                            light.State = LightState.Red;
+                        }
+                        this.Lights.Add(light);
+                    }
+                }
+            }
         }
 
         /// <summary>
