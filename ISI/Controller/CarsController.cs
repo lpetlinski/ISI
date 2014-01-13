@@ -79,7 +79,7 @@ namespace ISI.Controller
                 }
                 car.MoveBy(vector.X * car.Speed, vector.Y * car.Speed);
 
-                if (this.CheckCarCollision(car))
+                if (this.CheckCarCollision(car) || this.CheckCarLight(car))
                 {
                     car.MoveBy(-vector.X * car.Speed, -vector.Y * car.Speed);
                     car.Speed = 0;
@@ -116,6 +116,20 @@ namespace ISI.Controller
                 if (anotherCar != car && car.CheckCollision(anotherCar))
                 {
                     return true;
+                }
+            }
+            return false;
+        }
+
+        private bool CheckCarLight(Car car)
+        {
+            var node = car.ActualRoad.GetAnotherNode(car.LastNode);
+            if (RectangleCollisions.CheckSquaresCollision(node.Position, Node.NodeSize, car.Position, Car.CarLength))
+            {
+                var light = this.CityMap.Lights.FirstOrDefault<Light>(l => l.NodeWithLight == node && l.EdgeWithLight == car.ActualRoad);
+                if (light != null)
+                {
+                    return light.Stop;
                 }
             }
             return false;

@@ -31,6 +31,8 @@ namespace ISI.Controller
 
         private CarsController carsController;
 
+        private LightsController lightsController;
+
         /// <summary>
         /// Creates new controller.
         /// </summary>
@@ -64,7 +66,7 @@ namespace ISI.Controller
             }
 
             this.carsController = new CarsController(this.CityMap, this.Viewport);
-            
+            this.lightsController = new LightsController(this.CityMap);
         }
 
         /// <summary>
@@ -72,6 +74,7 @@ namespace ISI.Controller
         /// </summary>
         public void Update()
         {
+            this.lightsController.Update();
             this.carsController.UpdateCars();
         }
     }

@@ -58,6 +58,12 @@ namespace ISI.Model
             private set;
         }
 
+        public DateTime LastChangeDate
+        {
+            get;
+            set;
+        }
+
         private LightState innerState;
 
         public LightState State

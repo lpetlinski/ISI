@@ -54,6 +54,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Controller\CarsController.cs" />
+    <Compile Include="Controller\LightsController.cs" />
     <Compile Include="Model\Building.cs" />
     <Compile Include="Utils\RectangleCollisions.cs" />
     <Page Include="MainWindow.xaml">
