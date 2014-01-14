@@ -81,6 +81,12 @@ namespace ISI.Model
            set;
        }
 
+       public bool IsOnCrossroad
+       {
+           get;
+           set;
+       }
+
        /// <summary>
        /// Creates new car and sets it in point (0,0).
        /// </summary>
@@ -93,6 +99,7 @@ namespace ISI.Model
            this.DrawingRect.Fill = new SolidColorBrush(this.AccelerationPolicy.CarColor);
            this.Position = new Vector();
            this.MoveTo(0, 0);
+           this.IsOnCrossroad = false;
        }
 
        /// <summary>

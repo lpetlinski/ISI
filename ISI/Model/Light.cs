@@ -13,7 +13,8 @@ namespace ISI.Model
     {
         Green,
         Yellow,
-        Red
+        Red,
+        YellowStart
     }
 
     public class Light
@@ -24,6 +25,7 @@ namespace ISI.Model
         {
             { LightState.Green, false},
             { LightState.Yellow, true},
+            { LightState.YellowStart, true},
             { LightState.Red, true}
         };
 
@@ -31,6 +33,7 @@ namespace ISI.Model
         {
             { LightState.Green, new SolidColorBrush(Colors.Green)},
             { LightState.Yellow, new SolidColorBrush(Colors.Yellow)},
+            { LightState.YellowStart, new SolidColorBrush(Colors.Yellow)},
             { LightState.Red, new SolidColorBrush(Colors.Red)}
         };
 

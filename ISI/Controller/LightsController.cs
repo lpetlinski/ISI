@@ -13,14 +13,16 @@ namespace ISI.Controller
         {
             {LightState.Green, LightState.Yellow},
             {LightState.Yellow, LightState.Red},
-            {LightState.Red, LightState.Green}
+            {LightState.Red, LightState.YellowStart},
+            {LightState.YellowStart, LightState.Green}
         };
 
         private Dictionary<LightState, TimeSpan> StateTime = new Dictionary<LightState, TimeSpan>
         {
             {LightState.Green, new TimeSpan(0, 0, 0, 5)},
             {LightState.Yellow, new TimeSpan(0, 0, 0, 1)},
-            {LightState.Red, new TimeSpan(0, 0, 0, 4)}
+            {LightState.Red, new TimeSpan(0, 0, 0, 5)},
+            {LightState.YellowStart, new TimeSpan(0, 0, 0, 1)}
         };
 
         private CityMap cityMap;

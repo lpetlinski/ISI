@@ -76,7 +76,18 @@ namespace ISI.Controller
                     car.ActualRoad = car.NextRoad;
                     car.NextRoad = this.FindNextRoad(car);
                     vector = car.ActualRoad.GetDirectionFromNode(car.LastNode);
+                    car.IsOnCrossroad = false;
                 }
+
+                if (this.HasToRideForward(car, vector))
+                {
+                    var anotherNode = car.ActualRoad.GetAnotherNode(car.LastNode);
+                    car.LastNode = anotherNode;
+                    car.ActualRoad = car.NextRoad;
+                    car.NextRoad = this.FindNextRoad(car);
+                    car.IsOnCrossroad = false;
+                }
+
                 car.MoveBy(vector.X * car.Speed, vector.Y * car.Speed);
 
                 if (this.CheckCarCollision(car) || this.CheckCarLight(car))
@@ -121,14 +132,28 @@ namespace ISI.Controller
             return false;
         }
 
+        /// <summary>
+        /// Checks whether car should stop, because it's not a green light.
+        /// </summary>
+        /// <param name="car">Car to check.</param>
+        /// <returns>True if car should stop due to yellow/red light</returns>
         private bool CheckCarLight(Car car)
         {
+            if (car.IsOnCrossroad)
+            {
+                return false;
+            }
             var node = car.ActualRoad.GetAnotherNode(car.LastNode);
             if (RectangleCollisions.CheckSquaresCollision(node.Position, Node.NodeSize, car.Position, Car.CarLength))
             {
                 var light = this.CityMap.Lights.FirstOrDefault<Light>(l => l.NodeWithLight == node && l.EdgeWithLight == car.ActualRoad);
                 if (light != null)
                 {
+                    if (!light.Stop)
+                    {
+                        car.IsOnCrossroad = true;
+                    }
+
                     return light.Stop;
                 }
             }
@@ -262,6 +287,22 @@ namespace ISI.Controller
             {
                 var nextVector = car.NextRoad.GetDirectionFromNode(anotherNode);
                 if (actualVector.X * nextVector.Y - actualVector.Y * nextVector.X < 0)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool HasToRideForward(Car car, Vector actualVector)
+        {
+            var anotherNode = car.ActualRoad.GetAnotherNode(car.LastNode);
+
+            if (RectangleCollisions.CheckSquaresIncluding(anotherNode.Position, Node.NodeSize, car.Position, Car.CarLength))
+            {
+                var nextVector = car.NextRoad.GetDirectionFromNode(anotherNode);
+                if (actualVector.X * nextVector.X > 0 || actualVector.Y * nextVector.Y > 0)
                 {
                     return true;
                 }
