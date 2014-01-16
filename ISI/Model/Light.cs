@@ -37,6 +37,14 @@ namespace ISI.Model
             { LightState.Red, new SolidColorBrush(Colors.Red)}
         };
 
+        public readonly Dictionary<LightState, TimeSpan> StateTime = new Dictionary<LightState, TimeSpan>
+        {
+            {LightState.Green, new TimeSpan(0, 0, 0, 5)},
+            {LightState.Yellow, new TimeSpan(0, 0, 0, 1)},
+            {LightState.Red, new TimeSpan(0, 0, 0, 5)},
+            {LightState.YellowStart, new TimeSpan(0, 0, 0, 1)}
+        };
+
         public Edge EdgeWithLight
         {
             get;

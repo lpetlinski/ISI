@@ -330,7 +330,7 @@ namespace ISI.Controller
                 {
                     var vector = car.ActualRoad.GetDirectionFromNode(car.LastNode);
                     vector.RotateLeft();
-                    car.MoveBy(vector.X * distance, vector.Y * distance);
+                    car.MoveBy(vector.X * distance/2, vector.Y * distance/2);
                 }
             }
         }

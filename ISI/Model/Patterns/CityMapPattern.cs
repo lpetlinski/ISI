@@ -13,26 +13,31 @@ namespace ISI.Model.Patterns
         /// </summary>
         public static IList<Building> BuildingsPattern = new List<Building>
         {
-            new Building(185, 185, 0, 0),
-            new Building(185, 170, 215, 0),
-            new Building(185, 185, 415, 0),
-            new Building(170, 185, 0, 215),
-            new Building(170, 170, 215, 215),
-            new Building(170, 185, 415, 215),
-            new Building(185, 185, 0, 415),
-            new Building(185, 170, 215, 415),
-            new Building(185, 185, 415, 415)
+            new Building(128, 128, 0, 0),
+            new Building(284, 128, 0, 158),
+            new Building(128, 128, 0, 472),
+            new Building(128, 284, 158, 0),
+            new Building(127, 127, 158, 158),
+            new Building(127, 127, 158, 315),
+            new Building(128, 284, 158, 472),
+            new Building(127, 127, 315, 158),
+            new Building(127, 127, 315, 315),
+            new Building(128, 128, 472, 0),
+            new Building(284, 128, 472, 158),
+            new Building(128, 128, 472, 472),
         };
 
         /*
          * Graph nodes numbers:
-         *    1  2
-         *    |  |
-         * 3--4--5--6
-         *    |  |
-         * 7--8--9--10
-         *    |  |
-         *   11  12
+         *     1       2
+         *     |       |
+         * 3---4---5---6---7
+         *     |   |   |
+         *     8---9---10
+         *     |   |   |
+         * 11--12--13--14--15
+         *     |       |
+         *    16       17
          */
 
         /// <summary>
@@ -41,17 +46,25 @@ namespace ISI.Model.Patterns
         public static readonly IList<EdgePattern> GraphPattern = new List<EdgePattern>
         {
             new EdgePattern(1,4),
-            new EdgePattern(2,5),
+            new EdgePattern(2,6),
             new EdgePattern(3,4),
             new EdgePattern(4,5),
             new EdgePattern(5,6),
+            new EdgePattern(6,7),
             new EdgePattern(4,8),
             new EdgePattern(5,9),
-            new EdgePattern(7,8),
+            new EdgePattern(6,10),
             new EdgePattern(8,9),
             new EdgePattern(9,10),
-            new EdgePattern(8,11),
-            new EdgePattern(9,12)
+            new EdgePattern(8,12),
+            new EdgePattern(9,13),
+            new EdgePattern(10,14),
+            new EdgePattern(11,12),
+            new EdgePattern(12,13),
+            new EdgePattern(13,14),
+            new EdgePattern(14,15),
+            new EdgePattern(12,16),
+            new EdgePattern(14,17),
         };
 
         /// <summary>
@@ -59,18 +72,23 @@ namespace ISI.Model.Patterns
         /// </summary>
         public static readonly IList<NodePattern> NodePositionPattern = new List<NodePattern>
         {
-            new NodePattern(1, 185, 0),
-            new NodePattern(2, 385, 0),
-            new NodePattern(3, 0, 185),
-            new NodePattern(4, 185, 185),
-            new NodePattern(5, 385, 185),
-            new NodePattern(6, 570, 185),
-            new NodePattern(7, 0, 385),
-            new NodePattern(8, 185, 385),
-            new NodePattern(9, 385, 385),
-            new NodePattern(10, 570, 385),
-            new NodePattern(11, 185, 570),
-            new NodePattern(12, 385, 570)
+            new NodePattern(1, 128, 0),
+            new NodePattern(2, 442, 0),
+            new NodePattern(3, 0, 128),
+            new NodePattern(4, 128, 128),
+            new NodePattern(5, 285, 128),
+            new NodePattern(6, 442, 128),
+            new NodePattern(7, 570, 128),
+            new NodePattern(8, 128, 285),
+            new NodePattern(9, 285, 285),
+            new NodePattern(10, 442, 285),
+            new NodePattern(11, 0, 442),
+            new NodePattern(12, 128, 442),
+            new NodePattern(13, 285, 442),
+            new NodePattern(14, 442, 442),
+            new NodePattern(15, 570, 442),
+            new NodePattern(16, 128, 570),
+            new NodePattern(17, 442, 570)
         };
 
         /// <summary>
