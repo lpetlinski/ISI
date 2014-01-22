@@ -1,5 +1,7 @@
-﻿using ISI.Controller;
+﻿using ISI.Configuration;
+using ISI.Controller;
 using ISI.Model;
+using ISI.Timer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,25 +25,35 @@ namespace ISI
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Timer timer;
+        private System.Timers.Timer timer;
 
         private MainController mainController;
 
         private bool stopped;
 
+        private int iteration = 0;
+
         public MainWindow()
         {
             InitializeComponent();
-            mainController = new MainController(this.ViewPort);
+            mainController = new MainController(this.ViewPort, () => this.Close(), new DefaultLightsConfiguration());
 
-            this.timer = new Timer();
+            this.timer = new System.Timers.Timer();
             timer.Interval = 50;
             timer.AutoReset = true;
             timer.Elapsed += (obj, data) =>
             {
                 if (!stopped)
                 {
-                    mainController.Update();
+                    if (!mainController.Finished)
+                    {
+                        if (this.iteration % 10 == 0)
+                        {
+                            System.Console.WriteLine("Iteracja {0}", this.iteration);
+                        }
+                        mainController.Update();
+                        this.iteration++;
+                    }
                 }
             };
             timer.Start();

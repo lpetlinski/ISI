@@ -14,16 +14,24 @@ namespace ISI.Model.Patterns
         public static IList<Building> BuildingsPattern = new List<Building>
         {
             new Building(128, 128, 0, 0),
-            new Building(284, 128, 0, 158),
+            new Building(128, 128, 0, 158),
+            new Building(30, 126, 0, 285),
+            new Building(127, 128, 0, 314),
             new Building(128, 128, 0, 472),
-            new Building(128, 284, 158, 0),
+            new Building(128, 127, 158, 0),
+            new Building(126, 30, 285, 0),
+            new Building(128, 127, 315, 0),
             new Building(127, 127, 158, 158),
             new Building(127, 127, 158, 315),
-            new Building(128, 284, 158, 472),
+            new Building(128, 127, 158, 472),
+            new Building(126, 30, 285, 474),
+            new Building(128, 127, 315, 472),
             new Building(127, 127, 315, 158),
             new Building(127, 127, 315, 315),
             new Building(128, 128, 472, 0),
-            new Building(284, 128, 472, 158),
+            new Building(128, 128, 472, 158),
+            new Building(30, 126, 474, 285),
+            new Building(127, 128, 472, 314),
             new Building(128, 128, 472, 472),
         };
 

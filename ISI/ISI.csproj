@@ -53,9 +53,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Configuration\DefaultLightsConfiguration.cs" />
+    <Compile Include="Configuration\ILightsConfiguration.cs" />
     <Compile Include="Controller\CarsController.cs" />
     <Compile Include="Controller\LightsController.cs" />
     <Compile Include="Model\Building.cs" />
+    <Compile Include="Timer\ConsoleTimer.cs" />
+    <Compile Include="Timer\ITimer.cs" />
+    <Compile Include="Timer\SimulationTimer.cs" />
     <Compile Include="Utils\RectangleCollisions.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

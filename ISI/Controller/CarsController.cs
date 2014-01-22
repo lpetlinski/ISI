@@ -20,6 +20,8 @@ namespace ISI.Controller
         /// </summary>
         private static readonly int CarsCount = 40;
 
+        private static readonly int IterationsNotMovedToJam = 500;
+
         /// <summary>
         /// Static dictionary with acceleration policies.
         /// </summary>
@@ -32,7 +34,11 @@ namespace ISI.Controller
         /// <summary>
         /// List of cars.
         /// </summary>
-        private IList<Car> Cars;
+        public IList<Car> Cars
+        {
+            get;
+            private set;
+        }
 
         /// <summary>
         /// City map.
@@ -56,13 +62,21 @@ namespace ISI.Controller
             this.Viewport = viewport;
         }
 
+        private Random random = new Random();
+
         /// <summary>
         /// Updates cars positions.
         /// </summary>
         public void UpdateCars()
         {
-            foreach (var car in this.Cars.ToList())
+            foreach (var car in this.Cars.ToList().Where(c => !c.IsFinished))
             {
+                if (RectangleCollisions.CheckSquaresCollision(car.Destination.Position, Node.NodeSize, car.Position, Car.CarLength))
+                {
+                    car.Finished();
+                    continue;
+                }
+
                 if (car.Speed < car.AccelerationPolicy.MaxSpeed)
                 {
                     car.Speed += car.AccelerationPolicy.AccelerationSpeed;
@@ -94,12 +108,17 @@ namespace ISI.Controller
                 {
                     car.MoveBy(-vector.X * car.Speed, -vector.Y * car.Speed);
                     car.Speed = 0;
+                    car.NotMovedFor++;
+                }
+                else
+                {
+                    car.NotMovedFor = 0;
                 }
 
                 this.RepairCarPosition(car);
             }
 
-            if (!this.Viewport.Dispatcher.HasShutdownStarted && this.Cars.Count < CarsCount)
+            if (this.Viewport != null && this.Viewport.Dispatcher != null && !this.Viewport.Dispatcher.HasShutdownStarted && this.Cars.Count < CarsCount)
             {
                 try
                 {
@@ -113,6 +132,20 @@ namespace ISI.Controller
                     // Do nothing.
                 }
             }
+            else if (this.Cars.Count < CarsCount)
+            {
+                this.AddCars();
+            }
+        }
+
+        public bool AllFinished()
+        {
+            return this.Cars.Count > 0 && this.Cars.Count(c => !c.IsFinished) == 0;
+        }
+
+        public bool IsJam()
+        {
+            return this.Cars.Any(c => c.NotMovedFor > IterationsNotMovedToJam);
         }
 
         /// <summary>
@@ -122,7 +155,7 @@ namespace ISI.Controller
         /// <returns>True if car collides with another cars.</returns>
         private bool CheckCarCollision(Car car)
         {
-            foreach (var anotherCar in this.Cars.ToList())
+            foreach (var anotherCar in this.Cars.Where(c => !c.IsFinished).ToList())
             {
                 if (anotherCar != car && car.CheckCollision(anotherCar))
                 {
@@ -167,7 +200,6 @@ namespace ISI.Controller
         {
             if (this.Cars.Count < CarsCount)
             {
-                var rand = new Random();
                 var destinationNodes = this.CityMap.CityGraph.Nodes.Where(n => n.BorderNode).ToList();
                 for (int i = 0; i < CarsCount - this.Cars.Count; i++)
                 {
@@ -177,14 +209,14 @@ namespace ISI.Controller
                         // Stop adding, when there are no statring nodes left without a car.
                         break;
                     }
-                    var car = new Car(AccelerationPolicies[rand.Next(0, AccelerationPolicies.Keys.Count)]);
+                    var car = new Car(AccelerationPolicies[this.random.Next(0, AccelerationPolicies.Keys.Count)], this.Viewport != null);
 
-                    var start = emptyStartPoints[rand.Next(0, emptyStartPoints.Count)];
+                    var start = emptyStartPoints[this.random.Next(0, emptyStartPoints.Count)];
 
                     // Start cannot be same as destination point.
                     var tmpDestination = destinationNodes.ToList();
                     tmpDestination.Remove(start);
-                    var destination = tmpDestination[rand.Next(0, tmpDestination.Count)];
+                    var destination = tmpDestination[this.random.Next(0, tmpDestination.Count)];
 
                     car.Destination = destination;
                     car.LastNode = start;
@@ -195,7 +227,10 @@ namespace ISI.Controller
                     car.MoveTo(startPosition.X, startPosition.Y);
 
                     Cars.Add(car);
-                    Viewport.Children.Add(car.DrawingRect);
+                    if (Viewport != null)
+                    {
+                        Viewport.Children.Add(car.DrawingRect);
+                    }
                 }
             }
         }
@@ -254,8 +289,9 @@ namespace ISI.Controller
                     return edge;
                 }
             }
-            var rand = new Random();
-            return edges[rand.Next(0, edges.Count)];
+
+            edges = edges.Where(e => !e.EndNode.BorderNode && !e.StartNode.BorderNode).ToList();
+            return edges[this.random.Next(0, edges.Count)];
         }
 
         private bool HasToTurnRight(Car car, Vector actualVector)
@@ -280,8 +316,8 @@ namespace ISI.Controller
 
             var position = new Vector
             {
-                X = anotherNode.Position.X + actualVector.X * (Node.NodeSize*2/3),
-                Y = anotherNode.Position.Y + actualVector.Y * (Node.NodeSize*2/3)
+                X = anotherNode.Position.X + actualVector.X * (Node.NodeSize * 7 / 12),
+                Y = anotherNode.Position.Y + actualVector.Y * (Node.NodeSize * 7 / 12)
             };
             if (RectangleCollisions.CheckSquaresIncluding(position, Node.NodeSize, car.Position, Car.CarLength))
             {
@@ -330,7 +366,7 @@ namespace ISI.Controller
                 {
                     var vector = car.ActualRoad.GetDirectionFromNode(car.LastNode);
                     vector.RotateLeft();
-                    car.MoveBy(vector.X * distance/2, vector.Y * distance/2);
+                    car.MoveBy(vector.X * distance / 2, vector.Y * distance / 2);
                 }
             }
         }

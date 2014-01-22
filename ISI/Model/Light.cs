@@ -92,7 +92,7 @@ namespace ISI.Model
 
         private void ChangeColor()
         {
-            if (!Rect.Dispatcher.HasShutdownStarted)
+            if (Rect != null && Rect.Dispatcher != null && !Rect.Dispatcher.HasShutdownStarted)
             {
                 try
                 {

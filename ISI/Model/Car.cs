@@ -87,19 +87,35 @@ namespace ISI.Model
            set;
        }
 
+       public bool IsFinished
+       {
+           get;
+           private set;
+       }
+
+       public int NotMovedFor
+       {
+           get;
+           set;
+       }
+
        /// <summary>
        /// Creates new car and sets it in point (0,0).
        /// </summary>
-       public Car(IAccelerationPolicy accelerationPolicy)
+       public Car(IAccelerationPolicy accelerationPolicy, bool createRect)
        {
-           this.DrawingRect = new Rectangle();
            this.AccelerationPolicy = accelerationPolicy;
-           this.DrawingRect.Width = CarLength;
-           this.DrawingRect.Height = CarLength;
-           this.DrawingRect.Fill = new SolidColorBrush(this.AccelerationPolicy.CarColor);
+           if (createRect)
+           {
+               this.DrawingRect = new Rectangle();
+               this.DrawingRect.Width = CarLength;
+               this.DrawingRect.Height = CarLength;
+               this.DrawingRect.Fill = new SolidColorBrush(this.AccelerationPolicy.CarColor);
+           }
            this.Position = new Vector();
            this.MoveTo(0, 0);
            this.IsOnCrossroad = false;
+           this.IsFinished = false;
        }
 
        /// <summary>
@@ -135,12 +151,31 @@ namespace ISI.Model
            return RectangleCollisions.CheckSquaresCollision(this.Position, CarLength, anotherCar.Position, CarLength);
        }
 
+       public void Finished()
+       {
+           this.IsFinished = true;
+           if (this.DrawingRect != null && this.DrawingRect.Dispatcher != null && !DrawingRect.Dispatcher.HasShutdownStarted)
+           {
+               try
+               {
+                   DrawingRect.Dispatcher.Invoke(() =>
+                   {
+                       this.DrawingRect.Visibility = System.Windows.Visibility.Hidden;
+                   });
+               }
+               catch (TaskCanceledException)
+               {
+                   // Do nothing.
+               }
+           }
+       }
+
        /// <summary>
        /// Updates position of cars rectangle.
        /// </summary>
        private void UpdatePosition()
        {
-           if (!DrawingRect.Dispatcher.HasShutdownStarted)
+           if (this.DrawingRect != null && DrawingRect.Dispatcher != null && !DrawingRect.Dispatcher.HasShutdownStarted)
            {
                try
                {

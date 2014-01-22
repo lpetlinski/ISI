@@ -4,11 +4,34 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ISI.Model;
+using ISI.Timer;
+using ISI.Configuration;
 
 namespace ISI.Controller
 {
+    public struct QueueElement
+    {
+        public int CarsInQueue
+        {
+            get;
+            set;
+        }
+
+        public int CarsInSimulation
+        {
+            get;
+            set;
+        }
+    }
+
     public class LightsController
     {
+        public List<QueueElement> CarsInQueue
+        {
+            get;
+            private set;
+        }
+
         private Dictionary<LightState, LightState> StateMachine = new Dictionary<LightState, LightState>
         {
             {LightState.Green, LightState.Yellow},
@@ -17,20 +40,26 @@ namespace ISI.Controller
             {LightState.YellowStart, LightState.Green}
         };
 
-        private DateTime lastTimeUpdate = DateTime.Now;
-
-        private static readonly TimeSpan lightTimeUpdateInterval = new TimeSpan(0, 0, 1);
+        private DateTime lastTimeUpdate;
 
         private CityMap cityMap;
 
-        public LightsController(CityMap map)
+        private IList<Car> cars;
+
+        private ILightsConfiguration configuration;
+
+        public LightsController(CityMap map, IList<Car> cars, ILightsConfiguration configuration)
         {
             this.cityMap = map;
+            this.cars = cars;
+            this.CarsInQueue = new List<QueueElement>();
+            this.configuration = configuration;
+            lastTimeUpdate = this.configuration.Timer.GetActualTime();
         }
 
         public void Update()
         {
-            var now = DateTime.Now;
+            var now = this.configuration.Timer.GetActualTime();
             foreach (var light in cityMap.Lights)
             {
                 if (light.LastChangeDate == null)
@@ -44,35 +73,93 @@ namespace ISI.Controller
                 }
             }
 
-            if (DateTime.Now - lastTimeUpdate > lightTimeUpdateInterval)
+            if (this.configuration.UseAlgorithm && now - lastTimeUpdate > this.configuration.TimeBetweenLightsUpdates)
             {
-                lastTimeUpdate = DateTime.Now;
+                lastTimeUpdate = now;
                 this.UpdateLightTimes();
+            }
+            else if(now - lastTimeUpdate > this.configuration.TimeBetweenLightsUpdates)
+            {
+                // count queue on lights if not using algorithm
+                var queued = 0;
+                foreach (var node in this.cityMap.CityGraph.Nodes.Where(n => this.cityMap.Lights.Any(l => l.NodeWithLight == n)))
+                {
+                    IList<Light> horizontalLights;
+                    IList<Light> verticalLights;
+                    this.GetVerticalAndHorizontalLightsFromNode(node, out horizontalLights, out verticalLights);
+
+                    var horizontalQueue = this.GetQueueOnLights(horizontalLights);
+                    var verticalQueue = this.GetQueueOnLights(verticalLights);
+                    queued += horizontalQueue + verticalQueue;
+                }
+
+                this.CarsInQueue.Add(new QueueElement()
+                {
+                    CarsInQueue = queued,
+                    CarsInSimulation = this.cars.Count(c => !c.IsFinished)
+                });
             }
         }
 
         private void UpdateLightTimes()
         {
-            // TODO create some algorithm here
-            foreach (var node in this.cityMap.CityGraph.Nodes)
+            var queued = 0;
+            foreach (var node in this.cityMap.CityGraph.Nodes.Where(n => this.cityMap.Lights.Any(l => l.NodeWithLight == n)))
             {
-                this.UpdateLightTime(node, 100, true, true);
+                IList<Light> horizontalLights;
+                IList<Light> verticalLights;
+
+                this.GetVerticalAndHorizontalLightsFromNode(node, out horizontalLights, out verticalLights);
+
+                var horizontalQueue = this.GetQueueOnLights(horizontalLights)+1;
+                var verticalQueue = this.GetQueueOnLights(verticalLights)+1;
+
+                var horizontalTime = horizontalLights[0].StateTime[LightState.Green].TotalMilliseconds;
+                var horizontalRedTime = horizontalLights[0].StateTime[LightState.Red].TotalMilliseconds;
+                var verticalTime = verticalLights[0].StateTime[LightState.Green].TotalMilliseconds;
+                var verticalRedTime = verticalLights[0].StateTime[LightState.Red].TotalMilliseconds;
+
+                double anotherTime;
+                bool horizontal;
+
+                queued += horizontalQueue + verticalQueue-2;
+
+                if (verticalQueue / horizontalQueue < verticalTime / horizontalTime)
+                {
+                    anotherTime = horizontalRedTime;
+                    horizontal = true;
+                }
+                else
+                {
+                    anotherTime = verticalRedTime;
+                    horizontal = false;
+                }
+
+                // At least it should have 1 second.
+                if (anotherTime > 1000)
+                {
+                    this.UpdateLightTime(this.configuration.DeltaTimeUpdate, true, horizontal, horizontalLights, verticalLights);
+                    this.UpdateLightTime(-this.configuration.DeltaTimeUpdate, false, horizontal, horizontalLights, verticalLights);
+                }
             }
+
+            this.CarsInQueue.Add(new QueueElement()
+            {
+                CarsInQueue = queued,
+                CarsInSimulation = this.cars.Count(c => !c.IsFinished)
+            });
         }
 
         /// <summary>
         /// Updates times of lights which are connected to given node. It also updates opposite lights (ex. if you add 500 ms to horizontal green lights, it also updates vertical red lights by the same ammount)
         /// </summary>
-        /// <param name="node">Node to update lights on</param>
         /// <param name="timeToAdd">Time in ms to add (an be negative)</param>
         /// <param name="green">True if you want to update green light time, red otherwise</param>
         /// <param name="horizontal">True if you want to update horizontal light time, vertical otherwise.</param>
-        private void UpdateLightTime(Node node, int timeToAdd, bool green, bool horizontal){
-            IList<Light> horizontalLights;
-            IList<Light> verticalLights;
-
-            this.GetVerticalAndHorizontalLightsFromNode(node, out horizontalLights, out verticalLights);
-
+        /// <param name="horizontalLights">List of horizontal lights</param>
+        /// <param name="verticalLights">List of vertical lights</param>
+        private void UpdateLightTime(int timeToAdd, bool green, bool horizontal, IList<Light> horizontalLights, IList<Light> verticalLights)
+        {
             IList<Light> lightsToChange;
             IList<Light> otherLights;
 
@@ -130,6 +217,19 @@ namespace ISI.Controller
 
             var tmp = horizontalLights = lights.Where<Light>(l => Math.Abs(l.EdgeWithLight.GetDirectionFromNode(l.NodeWithLight).Y) < 0.1).ToList();
             verticalLights = lights.Where<Light>(l => !tmp.Contains(l)).ToList();
+        }
+
+        private int GetQueueOnLights(IList<Light> lights)
+        {
+            var result = 0;
+
+            foreach (var light in lights)
+            {
+                // TODO sprawdzać, czy one faktycznie stoja na światłach
+                result += this.cars.Count(c => c.ActualRoad == light.EdgeWithLight && c.LastNode != light.NodeWithLight && c.Speed < 0.0001);
+            }
+
+            return result;
         }
     }
 }

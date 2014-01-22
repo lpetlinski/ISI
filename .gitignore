@@ -1,3 +1,6 @@
 /ISI/bin
 /ISI/obj
 /*.suo
+
+/ISI_Console_Tests/bin
+/ISI_Console_Tests/obj

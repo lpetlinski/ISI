@@ -91,22 +91,22 @@ namespace ISI.Utils
                 var bottom = building.Position.Y + building.Height;
                 foreach (var corner in innerCorners)
                 {
-                    if (corner.X > left && corner.Y >= top && corner.Y <= bottom && corner.X - left <= squareLength)
+                    if (corner.X > left && corner.Y > top && corner.Y < bottom && corner.X - left < squareLength)
                     {
                         return corner.X - left;
                     }
 
-                    if (corner.X < right && corner.Y >= top && corner.Y <= bottom && right - corner.X <= squareLength)
+                    if (corner.X < right && corner.Y > top && corner.Y < bottom && right - corner.X < squareLength)
                     {
                         return right - corner.X;
                     }
 
-                    if (corner.Y > top && corner.X >= left && corner.X <= right && corner.Y - top <= squareLength)
+                    if (corner.Y > top && corner.X > left && corner.X < right && corner.Y - top < squareLength)
                     {
                         return corner.Y - top;
                     }
 
-                    if (corner.Y < bottom && corner.X >= left && corner.X <= right && bottom - corner.Y <= squareLength)
+                    if (corner.Y < bottom && corner.X > left && corner.X < right && bottom - corner.Y < squareLength)
                     {
                         return bottom - corner.Y;
                     }
@@ -124,7 +124,7 @@ namespace ISI.Utils
             var numberOfCorners = 0;
             foreach (var corner in corners)
             {
-                if (corner.X >= left && corner.X <= right && corner.Y >= top && corner.Y <= bottom)
+                if (corner.X > left && corner.X < right && corner.Y > top && corner.Y < bottom)
                 {
                     numberOfCorners++;
                 }
